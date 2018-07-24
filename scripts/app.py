@@ -1,5 +1,6 @@
 import os
 import fileinput
+import sys
 
 class Patchwerk:
 
@@ -29,15 +30,23 @@ class Patchwerk:
         return 0;
 
     def editFiles(self):
-        i = 0
+        i = 1
         for fname in self.filenames:
-            file = open(fname, "r+")
-            file.write("Hello")
-            for line in file:
-                print(line)
+            for line in fileinput.input([fname], inplace=True):
+                if(i == 1):
+                    line = line.replace("Plate", "Blank1")
+                elif(i == 2):
+                    line = line.replace("Plate", "Blank2")
+                elif(i == 3):
+                    line = line.replace("Plate", "Sameple1")
+                elif(i ==4):
+                    line = line.replace("Plate", "Sample2")
+                sys.stdout.write(line)
+            i += 1
+                
     
 
-test = Patchwerk("2581707")
+test = Patchwerk("2581712")
 test.confirmTargetFiles()
 test.editFiles()
         
