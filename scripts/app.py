@@ -1,6 +1,7 @@
 import fileinput
 import os
 from tkinter import Tk, Button, Entry, Label, StringVar
+from shutil import copyfile
 
 class Patchwerk():
 
@@ -26,9 +27,13 @@ class Patchwerk():
         self.barcode = None
         self.filenames = None
 
+        self.inputPath = 'W:\Manufacturing\PAA H2OD Plate Data\\raw'
+        self.finalPath = 'W:\Manufacturing\PAA H2OD Plate Data'
+
+        os.chdir(self.inputPath)
         #os.chdir('W:\Employees\Danny\dev\patchwerk')
         ##Add other work path here###
-        os.chdir('/users/dwhite/patchwerk/patchwerk')
+        #os.chdir('/users/dwhite/patchwerk/patchwerk')
         ###
 
     def validate(self, new_text):
@@ -42,8 +47,9 @@ class Patchwerk():
             return False
 
     def generateFile(self):
+        os.chdir(self.inputPath)
         if (self.confirmTargetFiles() == 1):
-            self.error_text.set("Raw files not found")
+            self.error_text.set("Raw file not found")
         else:
             self.editFiles()
 
@@ -82,6 +88,8 @@ class Patchwerk():
                     line = line.replace("Plate", "Sample2")
                 f.write(line)
             i += 1
+        os.chdir(self.finalPath)
+        copyfile(f,)
 
 root = Tk()
 test = Patchwerk(root)
