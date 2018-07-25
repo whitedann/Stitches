@@ -1,6 +1,6 @@
 import fileinput
 import os
-from tkinter import Tk, Button, Entry
+from tkinter import Tk, Button, Entry, Label, StringVar
 
 class Patchwerk():
 
@@ -16,6 +16,11 @@ class Patchwerk():
 
         self.submit_button = Button(master, text="Submit", command=self.generateFile)
         self.submit_button.pack()
+
+        self.error_text = StringVar()
+        self.error_text.set("")
+        self.error_label = Label(master,textvariable=self.error_text)
+        self.error_label.pack()
 
         #Script stuff
         self.barcode = None
@@ -37,8 +42,10 @@ class Patchwerk():
             return False
 
     def generateFile(self):
-        self.confirmTargetFiles()
-        self.editFiles()
+        if (self.confirmTargetFiles() == 1):
+            self.error_text.set("Raw files not found")
+        else:
+            self.editFiles()
 
     def confirmTargetFiles(self):
 
@@ -56,16 +63,15 @@ class Patchwerk():
             else:
                 return 1
         except IOError:
-            print('Raw file not found for this barcode')
             return 1
         return 0
 
     def editFiles(self):
-        output = self.barcode + "_backup"
+        output = self.barcode + "_backup.txt"
         i = 1
         f = open(output, "w")
         for fname in self.filenames:
-            for line in fileinput.input([fname], inplace=True, backup=""):
+            for line in fileinput.input([fname]):
                 if(i == 1):
                     line = line.replace("Plate", "Blank1")
                 elif(i == 2):
