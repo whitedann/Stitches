@@ -3,13 +3,13 @@ import os
 from tkinter import Tk, Button, Entry, Label, StringVar
 from shutil import copyfile
 
-class Patchwerk():
+class Stitches():
 
     def __init__(self, master):
 
-        #GUI stuff
+        # GUI stuff
         self.master = master
-        master.title("Patchwerk")
+        master.title("Stitches")
 
         vcmd = master.register(self.validate)
         self.barcode_field = Entry(master, validate="key", validatecommand=(vcmd, '%P'))
@@ -20,21 +20,23 @@ class Patchwerk():
 
         self.error_text = StringVar()
         self.error_text.set("")
-        self.error_label = Label(master,textvariable=self.error_text)
+        self.error_label = Label(master, textvariable=self.error_text)
         self.error_label.pack()
 
-        #Script stuff
+        # Script stuff
         self.barcode = None
         self.filenames = None
 
-        self.inputPath = 'W:\Manufacturing\PAA H2OD Plate Data\\raw'
-        self.finalPath = 'W:\Manufacturing\PAA H2OD Plate Data'
+        # Bravo paths
+        # self.inputPath = 'W:\Manufacturing\PAA H2OD Plate Data\\raw'
+        # self.outputPath = 'W:\Manufacturing\PAA H2OD Plate Data'
+
+        # Macbook paths
+        self.outputPath = '/users/dwhite/patchwerk'
+        self.inputPath = '/users/dwhite/patchwerk/patchwerk'
+        ###
 
         os.chdir(self.inputPath)
-        #os.chdir('W:\Employees\Danny\dev\patchwerk')
-        ##Add other work path here###
-        #os.chdir('/users/dwhite/patchwerk/patchwerk')
-        ###
 
     def validate(self, new_text):
         if not new_text:
@@ -48,10 +50,11 @@ class Patchwerk():
 
     def generateFile(self):
         os.chdir(self.inputPath)
-        if (self.confirmTargetFiles() == 1):
+        if self.confirmTargetFiles() == 1:
             self.error_text.set("Raw file not found")
         else:
             self.editFiles()
+            self.error_text.set("")
 
     def confirmTargetFiles(self):
 
@@ -64,7 +67,7 @@ class Patchwerk():
                 file = open(fname)
                 file.close()
                 i += 1
-            if(i == 4):
+            if i == 4:
                 return 0
             else:
                 return 1
@@ -78,19 +81,22 @@ class Patchwerk():
         f = open(output, "w")
         for fname in self.filenames:
             for line in fileinput.input([fname]):
-                if(i == 1):
+                if i == 1:
                     line = line.replace("Plate", "Blank1")
-                elif(i == 2):
+                elif i == 2:
                     line = line.replace("Plate", "Blank2")
-                elif(i == 3):
+                elif i == 3:
                     line = line.replace("Plate", "Sample1")
-                elif(i ==4):
+                elif i == 4:
                     line = line.replace("Plate", "Sample2")
                 f.write(line)
             i += 1
-        os.chdir(self.finalPath)
-        copyfile(f,)
+        # File must be closed before copying it
+        f.close()
+        copyfile(self.inputPath + '/' + output, self.outputPath + '/' + output)
+        # Delete file in the inputPath directory
+        os.remove(output)
 
 root = Tk()
-test = Patchwerk(root)
+test = Stitches(root)
 root.mainloop()
