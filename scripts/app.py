@@ -1,6 +1,6 @@
 import fileinput
 import os
-from tkinter import Tk, Button, Entry, Label, StringVar
+from tkinter import Tk, Button, Entry, Label, StringVar, Menu, filedialog
 from shutil import copyfile
 
 class Stitches():
@@ -13,7 +13,7 @@ class Stitches():
 
         vcmd = master.register(self.validate)
         self.barcode_field = Entry(master, validate="key", validatecommand=(vcmd, '%P'))
-        self.barcode_field.pack()
+        self.barcode_field.pack(pady=5)
 
         self.submit_button = Button(master, text="Submit", command=self.generateFile)
         self.submit_button.pack()
@@ -28,15 +28,14 @@ class Stitches():
         self.filenames = None
 
         # Bravo paths
-        # self.inputPath = 'W:\Manufacturing\PAA H2OD Plate Data\\raw'
-        # self.outputPath = 'W:\Manufacturing\PAA H2OD Plate Data'
+        self.inputPath = 'W:\Manufacturing\PAA H2OD Plate Data\\raw'
+        self.outputPath = 'W:\Manufacturing\PAA H2OD Plate Data'
 
         # Macbook paths
-        self.outputPath = '/users/dwhite/patchwerk'
-        self.inputPath = '/users/dwhite/patchwerk/patchwerk'
+        #self.outputPath = '/users/dwhite/patchwerk'
+        #self.inputPath = '/users/dwhite/patchwerk/patchwerk'
         ###
-
-        os.chdir(self.inputPath)
+            
 
     def validate(self, new_text):
         if not new_text:
@@ -49,12 +48,17 @@ class Stitches():
             return False
 
     def generateFile(self):
-        os.chdir(self.inputPath)
+        self.error_text.set("")
+        try:
+            os.chdir(self.outputPath)
+            os.chdir(self.inputPath)
+        except FileNotFoundError:
+            return
         if self.confirmTargetFiles() == 1:
             self.error_text.set("Raw file not found")
         else:
             self.editFiles()
-            self.error_text.set("")
+            self.error_text.set("Saved to: " + self.outputPath)
 
     def confirmTargetFiles(self):
 
@@ -93,10 +97,30 @@ class Stitches():
             i += 1
         # File must be closed before copying it
         f.close()
-        copyfile(self.inputPath + '/' + output, self.outputPath + '/' + output)
+        copyfile(self.inputPath + '\\' + output, self.outputPath + '\\' + output)
         # Delete file in the inputPath directory
         os.remove(output)
 
+    def changeOutputPath(self):
+        self.outputPath = filedialog.askdirectory()
+
+    def changeInputPath(self):
+        self.inputPath = filedialog.askdirectory()
+
+    def getOutputPath(self):
+        return self.outputPath
+    
+    def getInputPath(self):
+        return self.inputPath
+
 root = Tk()
+root.resizable(0, 0)
+root.geometry("300x70")
 test = Stitches(root)
+menu = Menu(root)
+root.config(menu = menu)
+fileMenu = Menu(menu, tearoff=False)
+menu.add_cascade(label="Settings",menu=fileMenu)
+fileMenu.add_command(label="Change Raw File Path -- Current: " + test.getInputPath(), command=test.changeInputPath)
+fileMenu.add_command(label="Change Output File Path --  Current: " + test.getOutputPath(), command=test.changeOutputPath)
 root.mainloop()
