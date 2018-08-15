@@ -21,7 +21,7 @@ class Stitches():
         self.error_text = StringVar()
         self.error_text.set("")
         self.error_label = Label(master, textvariable=self.error_text)
-        self.error_label.pack()
+        self.error_label.pack(pady=5)
 
         # Script stuff
         self.barcode = None
@@ -52,10 +52,11 @@ class Stitches():
         try:
             os.chdir(self.outputPath)
             os.chdir(self.inputPath)
-        except FileNotFoundError:
+        except (FileNotFoundError, OSError, PermissionError):
+            self.error_text.set("Provide valid input/output directories")
             return
         if self.confirmTargetFiles() == 1:
-            self.error_text.set("Raw file not found")
+            self.error_text.set("Raw files not found")
         else:
             self.editFiles()
             self.error_text.set("Saved to: " + self.outputPath)
@@ -115,12 +116,12 @@ class Stitches():
 
 root = Tk()
 root.resizable(0, 0)
-root.geometry("300x70")
+root.geometry("300x80")
 test = Stitches(root)
 menu = Menu(root)
 root.config(menu = menu)
 fileMenu = Menu(menu, tearoff=False)
 menu.add_cascade(label="Settings",menu=fileMenu)
-fileMenu.add_command(label="Change Raw File Path -- Current: " + test.getInputPath(), command=test.changeInputPath)
-fileMenu.add_command(label="Change Output File Path --  Current: " + test.getOutputPath(), command=test.changeOutputPath)
+fileMenu.add_command(label="Change Raw File Path", command=test.changeInputPath)
+fileMenu.add_command(label="Change Output File Path", command=test.changeOutputPath)
 root.mainloop()
